@@ -33,14 +33,14 @@ classdef Biotac < handle
 %             model.param.set('c01', .032);
 %             model.param.set('c10', .125);
             % Shore A26 (linear from A35) for biotac sensor
-            model.param.set('c01', .032*26/35);
-            model.param.set('c10', .125*26/35);
+            model.param.set('c01', .041*26/35);
+            model.param.set('c10', .162*26/35);
             obj.Model = model;
             model.result('pg4').set('title', '');
             model.result('pg6').feature('arws1').set('scale', '2.0E-4');
             model.param.set('iw', '24');
             model.param.set('il', '16');
-            obj.SaveFolder = '/home/bsadrfa/behzad/projects/shadowhand/comsol/results/';
+            obj.SaveFolder = '/home/bsadrfa/behzad/projects/biotac/comsol/results/';
             obj.PlotGroups = ["pg6", "pg4"];
             obj.PlotNames = ["contact", "deformation"];
             % obj.P0 = mphglobal(model,'p0');

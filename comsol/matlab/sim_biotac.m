@@ -7,7 +7,7 @@ for i=1:1
     import com.comsol.model.util.*
     % biotac_model_.mph has "finer" mesh preset
     % model = mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model.mph');%
-    model = mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model_fine_mesh.mph');
+    model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/biotac.mph');
     ModelUtil.showProgress(true);
 
     % meshgrid of rays in u,v coordinates
