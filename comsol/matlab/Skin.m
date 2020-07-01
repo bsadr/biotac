@@ -19,7 +19,7 @@ classdef Skin < handle
         
         Taxels % Taxel Coordinates [ellipsoid(3) cartesian(3)]
         Deformeds % Deformed Coordinates [ellipsoid(3) cartesian(3)]
-        
+        % plots
     end
     
     methods
@@ -31,7 +31,7 @@ classdef Skin < handle
                 surface = model{1,1};
             else
                 % load comsol model           
-                pd=mphplot(model,'pg4', 'createplot', 'off');
+                pd=mphplot(model,'pg1', 'createplot', 'off');
                 surface = pd{2}{1};                       
             end
                 % load trianlges and vertices from the surface
@@ -209,8 +209,6 @@ classdef Skin < handle
         end
         
         function plotCOM(obj, fig, view_vec)
-            plotGroups = ["pg6", "pg4"];
-            plotNames = ["contact", "deformation"];
 
             if nargin == 1
                 fig = figure;
@@ -227,7 +225,7 @@ classdef Skin < handle
 
             for j =1:2
                 subplot(1, 2, j);
-                mphplot(obj.Model, plotGroups(j), 'rangenum', 1);
+                mphplot(obj.Model, obj.plotGroup(j), 'rangenum', 1);
                 axis equal
                 view(view_vec)
                 ylim([-10.6  10.6])
@@ -237,7 +235,7 @@ classdef Skin < handle
                 ylabel('y [mm]')
                 zlabel('z [mm]')
                 grid off
-                title(plotNames(j))
+                title(obj.plotName(j))
             end
         end
 
@@ -272,6 +270,16 @@ classdef Skin < handle
     end
     
     methods(Static)
+        function pltg = plotGroup(i)
+            plot_groups = ["pg3", "pg1"];
+            pltg = plot_groups(i);
+        end
+        
+        function pltg = plotName(i)
+            plot_names = ["contact", "deformation"];
+            pltg = plot_names(i);
+        end
+        
         function drawEllip(color)
             persistent x y z;
             if isempty(x)
