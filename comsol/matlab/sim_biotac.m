@@ -1,6 +1,6 @@
 savefolder = "/home/bsadrfa/behzad/projects/biotac/comsol/results";
 
-fid = 3;
+fid = 4;
 for i=1:1
     % load comsol file
     import com.comsol.model.*
@@ -9,7 +9,7 @@ for i=1:1
     % model = mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model.mph');%
     model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/biotac.mph');
     ModelUtil.showProgress(true);
-
+    
     % meshgrid of rays in u,v coordinates
     n = 20;
     offset = 0.05*pi;
@@ -17,8 +17,12 @@ for i=1:1
     rays_xyz = Ray.skinGrid(n, offset);
 
     % Create a Biotac instance
-    biotac = Biotac(model);
-    biotac.SaveFolder = sprintf("%s/%d", savefolder, fid+i);
-    N = biotac.NumWayPoints;
+    biotac = Biotac(model, sprintf("%s/%d", savefolder, fid+i));
+    biotac.Step = 0.1;
+    biotac.NumWayPoints = 100;
+    
+    biotac.init;
+    biotac.makeContact;
+    biotac.planMotion;
     biotac.spinAll;
 end

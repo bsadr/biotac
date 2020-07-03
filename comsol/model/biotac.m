@@ -2,7 +2,7 @@ function out = model
 %
 % biotac.m
 %
-% Model exported on Jun 30 2020, 16:13 by COMSOL 5.5.0.359.
+% Model exported on Jul 1 2020, 17:50 by COMSOL 5.5.0.359.
 
 import com.comsol.model.*
 import com.comsol.model.util.*
@@ -26,7 +26,7 @@ model.param('par3').set('igap', '0.63', 'initial gap');
 model.param('par3').set('idx', '0');
 model.param('par3').set('idy', '0');
 model.param('par3').set('idz', '0');
-model.param('par3').set('mu', '0.3', 'friction coefficient');
+model.param('par3').set('mu', '2', 'friction coefficient');
 model.param.group.create('par4');
 model.param('par4').set('split_z', '-8', 'z value of xy-plane');
 model.param.group.create('par5');
@@ -194,8 +194,6 @@ model.component('comp1').physics('solid').create('fix1', 'Fixed', 2);
 model.component('comp1').physics('solid').feature('fix1').selection.set([3]);
 model.component('comp1').physics('solid').create('cnt1', 'SolidContact', 2);
 model.component('comp1').physics('solid').feature('cnt1').create('fric1', 'Friction', 2);
-model.component('comp1').physics('solid').feature('cnt1').create('adh1', 'Adhesion', 2);
-model.component('comp1').physics('solid').feature('cnt1').feature('adh1').featureInfo.create('warning');
 model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 2);
 model.component('comp1').physics('solid').feature('bndl1').selection.named('geom1_sel3');
 model.component('comp1').physics('solid').create('ge1', 'GlobalEquations', -1);
@@ -329,9 +327,8 @@ model.component('comp1').physics('solid').feature('cnt1').set('ContactMethodCtrl
 model.component('comp1').physics('solid').feature('cnt1').set('sourceMesh', true);
 model.component('comp1').physics('solid').feature('cnt1').set('tolcontact', '0.03639875822057671*1e-4');
 model.component('comp1').physics('solid').feature('cnt1').set('pairs', 'p1');
-model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('mu_fric', 2);
-model.component('comp1').physics('solid').feature('cnt1').feature('adh1').set('p0', '100[Pa]');
-model.component('comp1').physics('solid').feature('cnt1').feature('adh1').active(false);
+model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('mu_fric', 'mu');
+model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('cm_old_init', [0; 0; 0]);
 model.component('comp1').physics('solid').feature('bndl1').set('LoadType', 'FollowerPressure');
 model.component('comp1').physics('solid').feature('bndl1').set('FollowerPressure', 'Pressure');
 model.component('comp1').physics('solid').feature('ge1').set('name', 'Pressure');
@@ -534,6 +531,7 @@ model.sol('sol1').attach('std1');
 model.sol('sol1').create('st1', 'StudyStep');
 model.sol('sol1').create('v1', 'Variables');
 model.sol('sol1').create('s1', 'Stationary');
+model.sol('sol1').feature('s1').create('p1', 'Parametric');
 model.sol('sol1').feature('s1').create('se1', 'Segregated');
 model.sol('sol1').feature('s1').create('d1', 'Direct');
 model.sol('sol1').feature('s1').create('i1', 'Iterative');
@@ -577,6 +575,7 @@ model.result('pg2').feature('arws1').create('def', 'Deform');
 model.result('pg2').feature('arws1').feature('col').set('expr', 'comp1.solid.bndl1.F_A_Mag');
 model.result('pg2').feature('surf1').set('expr', '1');
 model.result('pg2').feature('surf1').create('def', 'Deform');
+model.result('pg3').set('data', 'dset2');
 model.result('pg3').create('arws1', 'ArrowSurface');
 model.result('pg3').create('arws2', 'ArrowSurface');
 model.result('pg3').create('surf1', 'Surface');
@@ -636,6 +635,15 @@ model.sol('sol1').feature('v1').feature('comp1_u_solid').set('scaleval', '1e-2*0
 model.sol('sol1').feature('s1').set('plot', true);
 model.sol('sol1').feature('s1').set('plotgroup', 'pg3');
 model.sol('sol1').feature('s1').feature('aDef').set('cachepattern', true);
+model.sol('sol1').feature('s1').feature('p1').active(false);
+model.sol('sol1').feature('s1').feature('p1').set('sweeptype', 'filled');
+model.sol('sol1').feature('s1').feature('p1').set('pname', {'idz' 'idy' 'idx'});
+model.sol('sol1').feature('s1').feature('p1').set('plistarr', {'1' 'range(0,1.5/6,1.5)' '0'});
+model.sol('sol1').feature('s1').feature('p1').set('punit', {'' '' ''});
+model.sol('sol1').feature('s1').feature('p1').set('porder', 'constant');
+model.sol('sol1').feature('s1').feature('p1').set('uselsqdata', false);
+model.sol('sol1').feature('s1').feature('p1').set('plot', true);
+model.sol('sol1').feature('s1').feature('p1').set('plotgroup', 'pg3');
 model.sol('sol1').feature('s1').feature('se1').set('maxsegiter', 15);
 model.sol('sol1').feature('s1').feature('se1').feature('ss1').label('Solid Mechanics');
 model.sol('sol1').feature('s1').feature('se1').feature('ss1').set('segvar', {'comp1_u_solid' 'comp1_solid_pw' 'comp1_ODE1'});
@@ -708,7 +716,7 @@ model.result('pg3').feature('arws1').set('descr', 'Contact pressure (spatial fra
 model.result('pg3').feature('arws1').set('const', {'solid.refpntx' '0' 'Reference point for moment computation, x coordinate'; 'solid.refpnty' '0' 'Reference point for moment computation, y coordinate'; 'solid.refpntz' '0' 'Reference point for moment computation, z coordinate'});
 model.result('pg3').feature('arws1').set('placement', 'gausspoints');
 model.result('pg3').feature('arws1').set('arrowbase', 'head');
-model.result('pg3').feature('arws1').set('scale', Inf);
+model.result('pg3').feature('arws1').set('scale', 3.2704519055012E-4);
 model.result('pg3').feature('arws1').set('scaleactive', false);
 model.result('pg3').feature('arws1').feature('col').set('coloring', 'gradient');
 model.result('pg3').feature('arws1').feature('col').set('topcolor', 'green');
@@ -718,7 +726,7 @@ model.result('pg3').feature('arws2').set('expr', {'solid.cnt1.Ttx' 'solid.cnt1.T
 model.result('pg3').feature('arws2').set('descr', 'Friction force (spatial frame)');
 model.result('pg3').feature('arws2').set('const', {'solid.refpntx' '0' 'Reference point for moment computation, x coordinate'; 'solid.refpnty' '0' 'Reference point for moment computation, y coordinate'; 'solid.refpntz' '0' 'Reference point for moment computation, z coordinate'});
 model.result('pg3').feature('arws2').set('placement', 'gausspoints');
-model.result('pg3').feature('arws2').set('scale', Inf);
+model.result('pg3').feature('arws2').set('scale', 2.9191530884289105E-4);
 model.result('pg3').feature('arws2').set('scaleactive', false);
 model.result('pg3').feature('arws2').feature('col').set('coloring', 'gradient');
 model.result('pg3').feature('arws2').feature('col').set('topcolor', 'magenta');
@@ -728,15 +736,16 @@ model.result('pg3').feature('surf1').label('Gray Surfaces');
 model.result('pg3').feature('surf1').set('const', {'solid.refpntx' '0' 'Reference point for moment computation, x coordinate'; 'solid.refpnty' '0' 'Reference point for moment computation, y coordinate'; 'solid.refpntz' '0' 'Reference point for moment computation, z coordinate'});
 model.result('pg3').feature('surf1').set('coloring', 'uniform');
 model.result('pg3').feature('surf1').set('color', 'gray');
+model.result('pg3').feature('surf1').set('smooth', 'internal');
 model.result('pg3').feature('surf1').set('resolution', 'normal');
 model.result('pg3').feature('surf1').feature('def').set('scaleactive', true);
 model.result('pg4').label('Probe Plot Group 4');
-model.result('pg4').set('xlabel', 'Displacement, z (mm), Point: (0.051487, -0.05975, -9.9356)');
+model.result('pg4').set('xlabel', 'idy ');
 model.result('pg4').set('windowtitle', 'Probe Plot 3');
 model.result('pg4').set('xlabelactive', false);
 model.result('pg4').feature('tblp1').label('Probe Table Graph 1');
 model.result('pg4').feature('tblp1').set('legend', true);
-model.result('pg5').set('xlabel', 'Displacement, z (mm), Point: (0.051487, -0.05975, -9.9356)');
+model.result('pg5').set('xlabel', 'idy ');
 model.result('pg5').set('ylabel', 'contact pressure (N/m<sup>2</sup>)');
 model.result('pg5').set('window', 'window2');
 model.result('pg5').set('windowtitle', 'Probe Plot 2');
@@ -744,6 +753,7 @@ model.result('pg5').set('xlabelactive', false);
 model.result('pg5').set('ylabelactive', false);
 model.result.export('anim1').set('plotgroup', 'pg3');
 model.result.export('anim1').set('target', 'player');
+model.result.export('anim1').set('solnumtype', 'inner');
 model.result.export('anim1').set('framesel', 'all');
 model.result.export('anim1').set('shownparameter', 'idz=1');
 model.result.export('anim1').set('frametime', 0.01);
@@ -769,10 +779,10 @@ model.result.export('anim1').set('grid', 'on');
 model.result.export('anim1').set('axes1d', 'on');
 model.result.export('anim1').set('axes2d', 'on');
 model.result.export('anim1').set('showgrid', 'on');
-model.result.export('anim2').set('plotgroup', 'pg3');
-model.result.export('anim2').set('giffilename', '/home/bsadrfa/behzad/projects/biotac/comsol/outputs/planar-y-contact-xy-mu-2.gif');
-model.result.export('anim2').set('fps', 5);
-model.result.export('anim2').set('framesel', 'all');
+model.result.export('anim2').set('giffilename', '/home/bsadrfa/behzad/projects/biotac/comsol/outputs/planar-z-1-y-deformation-yz-mu-2,2.gif');
+model.result.export('anim2').set('fps', 1);
+model.result.export('anim2').set('solnumtype', 'inner');
+model.result.export('anim2').set('maxframes', 16);
 model.result.export('anim2').set('width', 800);
 model.result.export('anim2').set('height', 600);
 model.result.export('anim2').set('fontsize', '9');
