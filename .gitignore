@@ -1,2 +1,4 @@
 deprecated
 *.lock
+*.m~
+largefiles
