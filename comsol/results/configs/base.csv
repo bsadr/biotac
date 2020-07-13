@@ -1,0 +1,13 @@
+Parameter,Value,Details
+isn,0,strain in normal direction
+iw,1,width
+il,1,lenght
+p_0,1750,inital pressure
+c01,0.0304571428571429,
+c10,0.120342857142857,
+vol_0,3.0524e-06,half-ellipsoid volume
+istep,0.1,step in tangent direction
+mu,2,friction coefficient
+para,0,computation parameter
+isc,0,strain in normal direction for initial contact
+istop,0.,stop in tangent direction
