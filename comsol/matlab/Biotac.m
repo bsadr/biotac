@@ -7,6 +7,8 @@ classdef Biotac < handle
         SaveFolder
         BaseSkin
         DeformedSkin
+        
+        Config
 
         % motion
         WayPoints
@@ -26,118 +28,149 @@ classdef Biotac < handle
     end
        
     methods
-        function obj = Biotac(model, savefolder)
+        function obj = Biotac(model, cfgid, savefolder)
             %Biotac Construct an instance of this class
             %   Construct an instance of this class
 
-            % Shore A26 (linear from A35) for biotac sensor
-            model.param.set('c01', .041*26/35);
-            model.param.set('c10', .162*26/35);
             obj.Model = model;
-%             model.result('pg4').set('title', '');
-%             model.result('pg6').feature('arws1').set('scale', '2.0E-4');
-            model.param.set('iw', '24');
-            model.param.set('il', '16');
             obj.SaveFolder = '/home/bsadrfa/behzad/projects/biotac/comsol/results/';
-            if nargin>1
+            if nargin>2
                 obj.SaveFolder = savefolder;
             end
-            obj.DirNormal = [0, 0, 1];
-            obj.DirTangent = [0, 1, 0];
-            obj.Step = 0.1;
-            obj.NumWayPoints = 10;
-            obj.InContact = false;
+            obj.Config = cfgid;
             obj.init;
-            obj.StrainNormal = 0.5;
-%             obj.makeContact;
-%             obj.planMotion;
+        end
+              
+        function obj = readCfg(obj, cfgnum)
+            cfgpath = obj.SaveFolder + "configs/";
+            if cfgnum==0 
+                cfgname = "base.csv";
+            else
+                cfgname = sprintf("%d.csv", cfgnum);
+            end
+            t = readtable(cfgpath+cfgname);
+            parameters = t.(1);
+            values = t.(2);
+            for i=1:size(values,1)
+                obj.Model.param.set(parameters(i), values(i));
+            end
         end
         
-        function obj = planMotion(obj, N, step, dir)
-            if nargin>1
-                obj.NumWayPoints = N;
+        function obj = setCfg(obj,  mesh)
+            %  mesh is in {'mesh2', 'mesh3', 'mesh4'}
+            obj.Model.component('comp1').geom('geom1').run;
+            if nargin==1
+                mesh = 'mesh2';
             end
-            if nargin>2
-                obj.Step = step;
-            end
-            if nargin>3
-                obj.DirNormal = dir;
-            end           
-%             for i=1:3
-%                 obj.WayPoints(2:end,i) = obj.WayPoints(1, i) + ...
-%                     obj.DirNormal(i) * obj.StrainNormal + ...
-%                     linspace(0, ...
-%                     obj.Step*(obj.NumWayPoints-2)*obj.DirTangent(i), ...
-%                     obj.NumWayPoints-1);
-%             end
-            obj.Model.param.set('idx', sprintf('%f+p*%f', ...
-                obj.DirNormal(1) * obj.StrainNormal+obj.WayPoints(1, 1), ...
-                obj.DirTangent(1)));
-            obj.Model.param.set('idy', sprintf('%f+p*%f', ...
-                obj.DirNormal(2) * obj.StrainNormal+obj.WayPoints(1, 2), ...
-                obj.DirTangent(2)));
-            obj.Model.param.set('idz', sprintf('%f+p*%f', ...
-                obj.DirNormal(3) * obj.StrainNormal+obj.WayPoints(1, 3), ...
-                obj.DirTangent(3)));
+            obj.Model.component('comp1').mesh(mesh).run;
 
+            obj.Model.study('std1').feature('stat').set('pname', {'para'});
+            obj.Model.study('std1').feature('stat').set('plistarr', {'range(0,istep,istop)'});
+            obj.Model.study('std1').feature('stat').set('punit', {''});
+
+            obj.Model.sol('sol1').feature('v1').set('clistctrl', {'p1'});
+            obj.Model.sol('sol1').feature('v1').set('cname', {'para'});
+            obj.Model.sol('sol1').feature('v1').set('clist', {'range(0,istep,istop)'});
+
+            obj.Model.sol('sol1').feature('s1').feature('p1').set('pname', {'para'});
+            obj.Model.sol('sol1').feature('s1').feature('p1').set('plistarr', {'range(0,istep,istop)'});
+            obj.Model.sol('sol1').feature('s1').feature('p1').set('punit', {''});            
         end
-        
+  
+        function obj = writeCfg(obj)
+            obj.SaveFolder = obj.SaveFolder+sprintf("%03d/", obj.Config);
+            mkdir(obj.SaveFolder);
+            cfgpath = obj.SaveFolder + "config.csv";
+            params=mphgetexpressions(obj.Model.param);
+            ptab = cell2table([params(:,1) params(:,4) params(:,3) params(:,2)], ...
+                'VariableNames', {'Parameter', 'Value', 'Details', 'Expression'});
+             writetable(ptab, cfgpath)
+        end
+       
         function obj = init(obj)
-            obj.Model.geom('geom1').run();
-            obj.Model.mesh('mesh2').run();            
+            obj.readCfg(obj.Config);
+            obj.readCfg(0);
+            obj.setCfg;
+            obj.InContact = false;
+
+            obj.makeContact;
+            obj.writeCfg;
+            obj.setCfg;
+            obj.NumWayPoints = 1 + mphglobal(obj.Model,'istop') ...
+                /mphglobal(obj.Model,'istep');                    
             obj.WayPoints = zeros(obj.NumWayPoints, 3);
             obj.CurWayPoint = 1;
             obj.Skins = Skin.empty(obj.NumWayPoints, 0);
             obj.FluidPressures = zeros(obj.NumWayPoints, 1);
             obj.ContactPressures = zeros(obj.NumWayPoints, 1);
             obj.SkinHeights = zeros(obj.NumWayPoints, 1);
+            
+%             obj.DeformedSkin = Skin(obj.Model, obj.BaseSkin);
+%             obj.Skins(1) = obj.DeformedSkin;
+%             obj.FluidPressures(1) = mphglobal(obj.Model,'Pressure');
+%             obj.ContactPressures(1) = mphglobal(obj.Model,'pc');
+%             obj.SkinHeights(1) = obj.DeformedSkin.height;           
+%             obj.WayPoints(1, :) = id;
+%             obj.CurWayPoint = 2;
+%             
+%             obj.csvWrite;
+%             obj.savePlot;   
+            
         end
         
-        function obj = spinAll(obj)
-            status = true;
-            while(status && obj.CurWayPoint<=obj.NumWayPoints)
-                [~, status] = obj.spinOnce;
-                obj.csvWrite;
-                obj.savePlot;
-            end
-        end
-
-        function [obj, status] = spinOnce(obj)
-            i = obj.CurWayPoint;
-            obj.Model.param.set('idx', obj.WayPoints(i, 1));
-            obj.Model.param.set('idy', obj.WayPoints(i, 2));
-            obj.Model.param.set('idz', obj.WayPoints(i, 3));
+        function [obj, status] = spin(obj)
             status = true;
             try
                 obj.Model.study('std1').run
             catch 
                 warning('BIOTAC MODEL COMSOL ERROR OCCURED')
                 status = false;
-                obj.NumWayPoints = i-1;
             end
-            obj.DeformedSkin = Skin(obj.Model, obj.BaseSkin);
-            obj.Skins(i) = obj.DeformedSkin;
-            pc = mphglobal(obj.Model,'pc');
-            pf = mphglobal(obj.Model,'Pressure');
-            obj.FluidPressures(i) = pf;
-            obj.ContactPressures(i) = pc;
-            obj.SkinHeights(i) = obj.DeformedSkin.height;
-            fprintf("%02d\t%0.2f\t%0.2f\t%0.2f\n", i, obj.DeformedSkin.height, pc, pf);
-            obj.CurWayPoint = i+1;
         end
+
+        
+%         function obj = spinAll(obj)
+%             status = true;
+%             while(status && obj.CurWayPoint<=obj.NumWayPoints)
+%                 [~, status] = obj.spinOnce;
+%                 obj.csvWrite;
+%                 obj.savePlot;
+%             end
+%         end
+
+%         function [obj, status] = spinOnce(obj)
+%             i = obj.CurWayPoint;
+%             obj.Model.param.set('idx', obj.WayPoints(i, 1));
+%             obj.Model.param.set('idy', obj.WayPoints(i, 2));
+%             obj.Model.param.set('idz', obj.WayPoints(i, 3));
+%             status = true;
+%             try
+%                 obj.Model.study('std1').run
+%             catch 
+%                 warning('BIOTAC MODEL COMSOL ERROR OCCURED')
+%                 status = false;
+%                 obj.NumWayPoints = i-1;
+%             end
+%             obj.DeformedSkin = Skin(obj.Model, obj.BaseSkin);
+%             obj.Skins(i) = obj.DeformedSkin;
+%             pc = mphglobal(obj.Model,'pc');
+%             pf = mphglobal(obj.Model,'Pressure');
+%             obj.FluidPressures(i) = pf;
+%             obj.ContactPressures(i) = pc;
+%             obj.SkinHeights(i) = obj.DeformedSkin.height;
+%             fprintf("%02d\t%0.2f\t%0.2f\t%0.2f\n", i, obj.DeformedSkin.height, pc, pf);
+%             obj.CurWayPoint = i+1;
+%         end
         
         function [obj, status] = makeContact(obj)
-            maxd = 0.02;
+            maxd = 0.1;
             low = 0; high = maxd;
             status = true;
             i = 1;
             obj.Model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('ContactPreviousStep', 'NotInContact');
-            while (low+0.01<=high && i<10 && status)
-                mid = low + (high-low)/2;           
-                id = mid*obj.DirNormal;
-                obj.Model.param.set('idx', id(1));
-                obj.Model.param.set('idy', id(2));
-                obj.Model.param.set('idz', id(3));
+            while (low+0.01<=high && i<5 && status)
+                mid = low + (high-low)/2;
+                obj.Model.param.set('isc', mid);            
                 try
                     obj.Model.study('std1').run
                 catch 
@@ -153,22 +186,15 @@ classdef Biotac < handle
                     low = mid;
                 end
                 
-                if i == 1
-                    obj.BaseSkin = Skin(obj.Model);
-                end
+%                 if i == 1
+%                     obj.BaseSkin = Skin(obj.Model);
+%                 end
                 i = i+1;
             end
+            obj.BaseSkin = Skin(obj.Model);
+            obj.readCfg(obj.Config);
+            obj.Model.param.set('isc', mid); 
             obj.Model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('ContactPreviousStep', 'InContact');
-            obj.DeformedSkin = Skin(obj.Model, obj.BaseSkin);
-            obj.Skins(1) = obj.DeformedSkin;
-            obj.FluidPressures(1) = mphglobal(obj.Model,'Pressure');
-            obj.ContactPressures(1) = mphglobal(obj.Model,'pc');
-            obj.SkinHeights(1) = obj.DeformedSkin.height;           
-            obj.WayPoints(1, :) = id;
-            obj.CurWayPoint = 2;
-            
-            obj.csvWrite;
-            obj.savePlot;            
         end
         
         function csvWrite(obj)

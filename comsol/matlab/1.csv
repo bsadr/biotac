@@ -1,0 +1,38 @@
+Parameter,Value,Details,Expression
+isn,0.5,strain in normal direction,.5
+ix0,0,initial (x),0
+iy0,0,initial (y),0
+iz0,-10.56,initail (z),-10.56
+itheta,0,,0
+iphi,0,,0
+irot,0,rotation,0
+iw,20,width,20
+il,20,lenght,20
+p_0,1750,inital pressure,1750
+c01,0.0304571428571429,,0.041/35*26
+c10,0.120342857142857,,0.162/35*26
+vol_0,3.0524e-06,half-ellipsoid volume,3.0524E-6
+inx,0,normal direction (x),0
+iny,0,normal direction (y),0
+inz,1,normal direction (z),1
+istep,0.1,step in tangent direction,0.1
+itx,0,tangent direction (x),0
+ity,1,tangent direction (y),1
+itz,0,tangent direction (z),0
+mu,2,friction coefficient,2
+para,0,computation parameter,0
+isc,0,strain in normal direction for initial contact,0
+idx,0,displacement wrt to initial contact (x),isn*inx+itx*para
+idy,0,displacement wrt to initial contact (y),isn*iny+ity*para
+idz,0.5,displacement wrt to initial contact (y),isn*inz+itz*para
+icx,0,inital contact (x),ix0+isc*inx
+icy,0,inital contact (y),iy0+isc*iny
+icz,-10.56,inital contact (z),iz0+isc*inz
+ix,0,,icx+idx
+iy,0,,icy+idy
+iz,-10.06,,icz+idz
+istop,0.2,stop in tangent direction,.2
+split_a,0,a in ax+by+cz=d,0
+split_b,0,b (note a^2+b^2+c^2==1),0
+split_c,-1,c,-1
+split_d,7.5,d,7.5

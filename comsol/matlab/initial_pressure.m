@@ -5,7 +5,7 @@ import com.comsol.model.util.*
 % biotac_model.mph has "finer" mesh preset
 % model =
 % mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model.mph');%
-model = mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model_fine_mesh.mph');
+model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/biotac.mph');
 save_folder = '/home/bsadrfa/behzad/projects/shadowhand/comsol/results';
 ModelUtil.showProgress(true);
 % ModelUtil.showProgress(false);
@@ -13,7 +13,7 @@ ModelUtil.showProgress(true);
 model.param.set('c01', .083);
 model.param.set('c10', .332);
 model.result('pg4').set('title', '');
-model.result('pg6').feature('arws1').set('scale', '2.0E-4');
+%model.result('pg6').feature('arws1').set('scale', '2.0E-4');
 model.param.set('iw', '20');
 model.param.set('il', '14');
 model.geom('geom1').run();

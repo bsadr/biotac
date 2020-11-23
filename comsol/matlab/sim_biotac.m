@@ -1,6 +1,6 @@
-savefolder = "/home/bsadrfa/behzad/projects/biotac/comsol/results";
+savefolder = "/home/bsadrfa/behzad/projects/biotac/comsol/results/";
 
-fid = 4;
+fid = 0;
 for i=1:1
     % load comsol file
     import com.comsol.model.*
@@ -17,12 +17,12 @@ for i=1:1
     rays_xyz = Ray.skinGrid(n, offset);
 
     % Create a Biotac instance
-    biotac = Biotac(model, sprintf("%s/%d", savefolder, fid+i));
-    biotac.Step = 0.1;
-    biotac.NumWayPoints = 100;
+    biotac = Biotac(model, i, savefolder);
     
-    biotac.init;
-    biotac.makeContact;
-    biotac.planMotion;
-    biotac.spinAll;
+    biotac.spin
+    
+%     biotac.init;
+%     biotac.makeContact;
+%     biotac.planMotion;
+%     biotac.spinAll;
 end

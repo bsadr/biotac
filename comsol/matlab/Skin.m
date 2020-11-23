@@ -29,10 +29,12 @@ classdef Skin < handle
 
             if nargin == 3 % model is a loaded stl file
                 surface = model{1,1};
+                fprintf('surface model')
             else
                 % load comsol model           
                 pd=mphplot(model,'pg1', 'createplot', 'off');
-                surface = pd{2}{1};                       
+                surface = pd{2}{1};              
+                fprintf('comsol model')
             end
                 % load trianlges and vertices from the surface
                 obj.Vertices = surface.p.';
@@ -88,7 +90,11 @@ classdef Skin < handle
                 normal_distances = t(indices);
                 [d, local_idx] = max(normal_distances);
                 idx = indices(local_idx);
-                points(i, :) = [xcoor(idx, :), d, idx, u(idx), v(idx)];
+                try
+                    points(i, :) = [xcoor(idx, :), d, idx, u(idx), v(idx)];
+                catch
+                    disp(idx)
+                end
             end 
             obj.RayIntersects = points;
             obj.calcTaxels;

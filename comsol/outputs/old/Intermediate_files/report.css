@@ -1,0 +1,392 @@
+/* Default style for links */
+a:active  { color: #1291F3}
+a:link { color: #368CCB}
+a:visited { color: #84C2EA}
+
+/* Default style */
+body {
+  background-color: #FAFBFE;
+  color: #000000;
+  font-family:Segoe UI,Arial,Helvetica;
+  font-size: 11pt;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-transform: none;
+  vertical-align: baseline;
+  margin-bottom: 8pt;
+  margin-left: 20pt;
+  margin-right:20pt;
+  margin-top: 0pt;
+}
+
+p {
+  margin-bottom: 8pt;
+  margin-left:20pt;
+  margin-right: 20pt;
+  margin-top: 0pt;
+}
+
+h1 {
+  font-size: 18pt;
+  letter-spacing: 1pt;
+  margin-bottom: 8pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 4pt;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+h2 {
+  color: #575757;
+  font-family:Segoe UI,Arial,Helvetica;
+  font-size: 14pt;
+  margin-bottom: 4pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 12pt;
+  padding-bottom: 3px;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+h3 {
+  color: #575757;
+  font-family:Segoe UI,Arial,Helvetica;
+  font-size: 12pt;
+  letter-spacing: 0pt;
+  margin-bottom: 4pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 12pt;
+  text-align: left;
+  text-indent: 0pt;
+  text-transform: uppercase;
+  word-spacing: -1px;
+}
+
+h4 {
+  color: #575757;
+  font-size: 11pt;
+  margin-bottom: 3pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 12pt;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+h5 {
+  color: #575757;
+  font-size: 10pt;
+  margin-bottom: 3pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 9pt;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+h6 {
+  color: #575757;
+  font-size: 8pt;
+  margin-bottom: 3pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 7pt;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+img {
+  border: 1px solid #D6D6D8;
+  margin-top: 4pt;
+  margin-bottom: 0pt;
+}
+
+object {
+  border: 1px solid #D6D6D8;
+  margin-top: 4pt;
+  margin-bottom: 0pt;
+}
+
+
+/**
+ * Table
+ */
+ 
+table {
+  border: 1px solid #D6D6D8;
+  border-collapse: collapse;
+  empty-cells: hide;
+  font-family: Segoe UI,Verdana,Helvetica;
+  font-size: 10pt;
+  margin-bottom: 4pt;
+  margin-left:20pt;
+  margin-right: 4pt;
+  margin-top: 8pt;
+}
+
+table td {
+  padding: 2pt;
+  padding-right: 6pt;
+  border: 1px solid #D6D6D8;
+}
+
+table col:first-child {
+  border-left: none;
+}
+
+table col {
+  border-left: 1px solid #D6D6D8;
+}
+
+table th {
+  background-color: #EBEBEB;
+  padding: 2pt;
+  padding-right: 6pt;
+  border: none;
+  text-align: left;
+  font-size: 10pt;
+}
+
+table caption {
+  padding-bottom:2pt;
+  padding-left:3pt;
+  text-align: left;
+  color: #2B579A;
+  text-transform: uppercase;
+}
+
+/** 
+* Paragraphs
+*/
+
+div.Code
+{
+  font-family: "Courier New",Courier,Monospace;
+  font-size: 9pt;
+  margin-bottom: 0pt;
+  margin-left: 20pt;
+  margin-right: 16pt;
+  margin-top: 0pt;
+  text-align: Left;
+  text-indent: 0pt;
+}
+
+div.CodeLast {
+  color: #000000;
+  font-family: "Courier New",Courier,Monospace;
+  font-size: 9pt;
+  margin-bottom: 8pt;
+  margin-left: 20pt;
+  margin-right: 16pt;
+  margin-top: 0pt;
+  text-align: Left;
+  text-indent: 0pt;
+}
+
+div.Equation {
+  color: #0000FF;
+  margin-bottom: 10pt;
+  margin-left: 20pt;
+  margin-right: 16pt;
+  margin-top: 0pt;
+}
+
+div.Note
+{
+  margin-bottom: 8pt;
+  margin-top: 0pt;
+  padding-bottom: 2pt;
+  padding-top: 2pt;
+  text-align: Left;
+  text-indent: 0pt;
+}
+
+table.Note
+{
+  border-bottom-color: #D6D6D8;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-top-color: #D6D6D8;
+  border-top-style: solid;
+  border-top-width: 1px;
+  padding-bottom: 4pt;
+  padding-left: 7pt;
+  padding-right: 7pt;
+  padding-top: 6pt;
+  vertical-align: middle;
+}
+
+div.ReportTitle
+{
+  color: #2B579A;
+  font-size: 20pt;
+  font-family:Segoe UI,Arial,Helvetica;
+  font-weight: 200;
+  letter-spacing: 0pt;
+  margin-bottom: 12pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 8pt;
+  text-align: left;
+  text-indent: 0pt;
+}
+
+div.TableHeading
+{
+  margin-bottom: 4pt;
+  margin-left: 23pt;
+  margin-right: 4pt;
+  margin-top: 8pt;
+  text-align:left;
+  color: #2B579A;
+  text-transform: uppercase;
+}
+
+div.TocHeading
+{
+  color: #368CCB;
+  font-family: Segoe UI,Verdana,Helvetica;
+  font-size: 13pt;
+  font-style: normal;
+  font-variant: small-caps;
+  font-weight: 600;
+  letter-spacing: 0pt;
+  margin-bottom: 3pt;
+  margin-left: 4pt;
+  margin-right: 4pt;
+  margin-top: 12pt;
+  padding-bottom: 3px;
+  text-align: left;
+  text-indent: 0pt;
+  text-transform: none;
+  vertical-align: baseline;
+}
+
+
+/**
+* Fonts
+*/
+
+span.BodyTextBold
+{
+  font-weight: bold;
+}
+
+span.BodyTextItalic
+{
+  font-style: italic;
+}
+
+span.Code
+{
+  font-family: "Courier New",Courier,Monospace;
+  font-size: 10pt;
+}
+
+span.CodeBold
+{
+  font-family: "Courier New",Courier,Monospace;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+span.CodeItalic
+{
+  font-family: "Courier New",Courier,Monospace;
+  font-size: 11pt;
+  font-style: italic;
+}
+
+span.EquationBold
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 11pt;
+  font-weight: bold;
+}
+
+span.EquationBoldSubscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  font-weight: bold;
+  vertical-align: sub;
+}
+
+span.EquationBoldSuperscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  font-weight: bold;
+  vertical-align: super;
+}
+
+span.EquationConstants
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 11pt;
+}
+
+span.EquationConstantsSubscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  vertical-align: sub;
+}
+
+span.EquationConstantsSuperscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  vertical-align: super;
+}
+
+span.EquationVariables
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 11pt;
+  font-style: italic;
+}
+
+span.EquationVariablesSubscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  font-style: italic;
+  vertical-align: sub;
+}
+
+span.EquationVariablesSuperscript
+{
+  font-family: NewCenturySchlbk,"Century Schoolbook","Times New Roman",Arial;
+  font-size: 7pt;
+  font-style: italic;
+  vertical-align: super;
+}
+
+span.Label
+{
+  color: #575757;
+  font-weight: bold;
+}
+
+span.SubscriptBodyText
+{
+  font-size: 7pt;
+  vertical-align: sub;
+}
+
+span.SuperscriptBodyText
+{
+  font-size: 7pt;
+  vertical-align: super;
+}
+
+span.Symbol
+{
+  font-family: Symbol,SWGrekc,SWGreks;
+  font-size: 10pt;
+}
