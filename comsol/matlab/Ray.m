@@ -6,9 +6,9 @@ classdef Ray < handle
         function obj = Ray()
             %Ray Construct an instance of this class
             %   Ray Construct an instance of this class, set the raddii
-            obj.radii([14.23, 9.94, 9.94]);
-            % skin radii: [14.23, 9.94, 9.94]
-            % core radii: [12.437, 8.153, 8.153]
+            obj.radii([14., 9.74, 9.74]);
+            % skin radii: [14., 9.74, 9.74]
+            % core radii: [12.42, 8.14, 8.057]
         end       
    
         function uv = xyz_to_uv(obj, xyz)

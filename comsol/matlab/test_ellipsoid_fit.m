@@ -1,38 +1,44 @@
 % test ellipsoid fit
 
-% create the test data:
-% radii
-a = 1;
-b = 2;
-c = 3;
-[ s, t ] = meshgrid( 0 : 0.1 : pi, 0 : 0.3 : pi );
-x = a * cos(s) .* cos( t );
-y = b * cos(s) .* sin( t );
-z = c * sin(s);
-% rotation
-ang =0;
-xt = x * cos( ang ) - y * sin( ang );
-yt = x * sin( ang ) + y * cos( ang );
-% translation
-shiftx = 4;
-shifty = 5;
-shiftz = 6;
-x = xt + shiftx;
-y = yt + shifty;
-z = z  + shiftz;
+% % create the test data:
+% % radii
+% a = 1;
+% b = 2;
+% c = 3;
+% [ s, t ] = meshgrid( 0 : 0.1 : pi, 0 : 0.3 : pi );
+% x = a * cos(s) .* cos( t );
+% y = b * cos(s) .* sin( t );
+% z = c * sin(s);
+% % rotation
+% ang =0;
+% xt = x * cos( ang ) - y * sin( ang );
+% yt = x * sin( ang ) + y * cos( ang );
+% % translation
+% shiftx = 4;
+% shifty = 5;
+% shiftz = 6;
+% x = xt + shiftx;
+% y = yt + shifty;
+% z = z  + shiftz;
 
-% add noise:
-noiseIntensity = 0.1; %
-dx = randn( size( s ) ) * noiseIntensity;
-dy = randn( size( s ) ) * noiseIntensity;
-dz = randn( size( s ) ) * noiseIntensity;
-x = x + dx;
-y = y + dy;
-z = z + dz;
-x = x(:);
-y = y(:);
-z = z(:);
-fprintf( 'Simulated average data deviation: %.5f\n', sqrt( sum( dx(:).^2 + dy(:).^2 + dz(:).^2 ) / size( x, 1 ) ) );
+% % add noise:
+% noiseIntensity = 0.1; %
+% dx = randn( size( s ) ) * noiseIntensity;
+% dy = randn( size( s ) ) * noiseIntensity;
+% dz = randn( size( s ) ) * noiseIntensity;
+% x = x + dx;
+% y = y + dy;
+% z = z + dz;
+% x = x(:);
+% y = y(:);
+% z = z(:);
+% fprintf( 'Simulated average data deviation: %.5f\n', sqrt( sum( dx(:).^2 + dy(:).^2 + dz(:).^2 ) / size( x, 1 ) ) );
+
+% load data
+t = readtable('locations.csv');
+x = t.(2);
+y = t.(3);
+z = t.(4);
 
 % do the fitting
 [ center, radii, evecs, v, chi2 ] = ellipsoid_fit( [ x y z ], '' );
