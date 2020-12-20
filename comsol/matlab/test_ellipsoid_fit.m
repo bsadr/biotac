@@ -36,12 +36,12 @@
 
 % load data
 t = readtable('locations.csv');
-x = t.(2);
-y = t.(3);
-z = t.(4);
+x = 1000*t.(2)(1:24);
+y = 1000*t.(3)(1:24);
+z = 1000*t.(4)(1:24);
 
 % do the fitting
-[ center, radii, evecs, v, chi2 ] = ellipsoid_fit( [ x y z ], '' );
+[ center, radii, evecs, v, chi2 ] = ellipsoid_fit( [ x y z ], '0' );
 fprintf( 'Ellipsoid center: %.5g %.5g %.5g\n', center );
 fprintf( 'Ellipsoid radii: %.5g %.5g %.5g\n', radii );
 fprintf( 'Ellipsoid evecs:\n' );
@@ -53,6 +53,8 @@ fprintf( '\nAverage deviation of the fit: %.5f\n', sqrt( chi2 / size( x, 1 ) ) )
 fprintf( '\n' );
 
 % draw data
+% center = [0 0 0];
+% radii= [.01242 .00814 .008057];
 figure,
 plot3( x, y, z, '.r' );
 hold on;
@@ -70,7 +72,7 @@ Ellipsoid = v(1) *x.*x +   v(2) * y.*y + v(3) * z.*z + ...
 p = patch( isosurface( x, y, z, Ellipsoid, -v(10) ) );
 hold off;
 set( p, 'FaceColor', 'g', 'EdgeColor', 'none' );
-view( -70, 40 );
+view( 0, 90 );
 axis vis3d equal;
 camlight;
 lighting phong;

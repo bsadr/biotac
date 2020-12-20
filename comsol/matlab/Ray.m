@@ -1,14 +1,37 @@
 classdef Ray < handle
     %Ray class for calcualting rays and coordinates
     %   Ray class for calcualting rays and coordinates (no properties)
-       
+    
+    properties
+        % Sensor xyz and uv values (24 impedance sensors)
+        XYZ
+        UV
+    end
+    
     methods
-        function obj = Ray()
+        function obj = Ray(location_path)
             %Ray Construct an instance of this class
             %   Ray Construct an instance of this class, set the raddii
-            obj.radii([14., 9.74, 9.74]);
+            obj.radii([12.42, 8.14, 8.057]);
             % skin radii: [14., 9.74, 9.74]
             % core radii: [12.42, 8.14, 8.057]
+            
+            if nargin == 1
+                t = readtable(location_path);
+                % four locations on a flat surface 
+                % four excitation electrodes;
+                % TO DO: label the electrode ids
+                obj.XYZ = 1000*[t.(2) t.(3) t.(4)];
+                obj.UV = obj.xyz_to_uv(obj.XYZ);
+                figure,
+                plot3(obj.XYZ(:,1), obj.XYZ(:,2), obj.XYZ(:,3), '.r' );
+                hold on;
+                obj.fitSensor();
+                xyz = obj.uv_to_xyz(obj.UV);
+                plot3(xyz(:,1), xyz(:,2), xyz(:,3), '+g' );
+                view( 0, 90 );
+
+            end
         end       
    
         function uv = xyz_to_uv(obj, xyz)
@@ -34,7 +57,21 @@ classdef Ray < handle
             xyz = [r(1)*cos(uv(:,1)).*sin(uv(:,2)), ...
                    r(2)*sin(uv(:,1)).*sin(uv(:,2)), ...
                    r(3)*cos(uv(:,2))];
-        end           
+        end     
+        
+        function obj = fitSensor(obj)
+            % distance from a line
+            % https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+            f = @(uv, x2)norm(cross(obj.uv_to_xyz(uv), x2))/norm(x2);
+            
+            for i = 1:size(obj.XYZ, 1)
+                x2 = obj.XYZ(i, 1:3);
+                fun = @(uv)f(uv, x2);
+                uv0 = obj.UV(i, 1:2);
+                uv = fminsearch(fun, uv0);
+                obj.UV(i, 1:2) = uv0;
+            end
+        end
         
     end
     
