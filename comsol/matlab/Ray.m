@@ -18,19 +18,14 @@ classdef Ray < handle
             
             if nargin == 1
                 t = readtable(location_path);
-                % four locations on a flat surface 
-                % four excitation electrodes;
-                % TO DO: label the electrode ids
-                obj.XYZ = 1000*[t.(2) t.(3) t.(4)];
-                obj.UV = obj.xyz_to_uv(obj.XYZ);
-                figure,
-                plot3(obj.XYZ(:,1), obj.XYZ(:,2), obj.XYZ(:,3), '.r' );
-                hold on;
-                obj.fitSensor();
-                xyz = obj.uv_to_xyz(obj.UV);
-                plot3(xyz(:,1), xyz(:,2), xyz(:,3), '+g' );
-                view( 0, 90 );
-
+                % four locations on a flat surface (21...24)
+                % four excitation electrodes; (-4...-1)
+                obj.XYZ = [t.(2) t.(3) t.(4)];
+                obj.UV = [t.(9) t.(10)];
+                % % find exact uv values for locations
+                % obj.UV = obj.xyz_to_uv(obj.XYZ);
+                % obj.fitSensor();                
+                obj.showSensor();
             end
         end       
    
@@ -69,8 +64,29 @@ classdef Ray < handle
                 fun = @(uv)f(uv, x2);
                 uv0 = obj.UV(i, 1:2);
                 uv = fminsearch(fun, uv0);
-                obj.UV(i, 1:2) = uv0;
+                obj.UV(i, 1:2) = uv;
             end
+        end
+        
+        function showSensor(obj)
+            % Visualization function to inspect the sensor locations
+            xyz = obj.uv_to_xyz(obj.UV);
+            figure,
+            plot3(obj.XYZ(:,1), obj.XYZ(:,2), obj.XYZ(:,3), '.r' );
+            hold on;
+            plot3(xyz(:,1), xyz(:,2), xyz(:,3), '+b' );
+            for i = 1:size(obj.XYZ, 1)
+                text(obj.XYZ(i,1), obj.XYZ(i,2), obj.XYZ(i,3), sprintf("%d", i));
+                text(xyz(i,1), xyz(i,2), xyz(i,3), sprintf("%d", i));
+            end
+            axis equal
+            ylim([-10.6  10.6])
+            xlim([-14.9 14.9])
+            zlim([-14.2 0])
+            xlabel('x [mm]')
+            ylabel('y [mm]')
+            zlabel('z [mm]')
+            view( 0, 90 );      
         end
         
     end

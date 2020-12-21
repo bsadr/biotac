@@ -36,9 +36,9 @@
 
 % load data
 t = readtable('locations.csv');
-x = 1000*t.(2)(1:24);
-y = 1000*t.(3)(1:24);
-z = 1000*t.(4)(1:24);
+x = t.(2)(1:24);
+y = t.(3)(1:24);
+z = t.(4)(1:24);
 
 % do the fitting
 [ center, radii, evecs, v, chi2 ] = ellipsoid_fit( [ x y z ], '0' );
