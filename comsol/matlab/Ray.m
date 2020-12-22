@@ -6,26 +6,37 @@ classdef Ray < handle
         % Sensor xyz and uv values (24 impedance sensors)
         XYZ
         UV
+        D
     end
     
+    properties (SetAccess = private)
+      Sensor = false
+    end    
+    
     methods
-        function obj = Ray(location_path)
+        function obj = Ray(~)
             %Ray Construct an instance of this class
             %   Ray Construct an instance of this class, set the raddii
             obj.radii([12.42, 8.14, 8.057]);
             % skin radii: [14., 9.74, 9.74]
             % core radii: [12.42, 8.14, 8.057]
             
-            if nargin == 1
-                t = readtable(location_path);
+            if nargin == 1 % load rays from sensor location file
+                t = readtable('3dmodels/locations.csv');
                 % four locations on a flat surface (21...24)
                 % four excitation electrodes; (-4...-1)
                 obj.XYZ = [t.(2) t.(3) t.(4)];
+                
+                % either read uv from file
                 obj.UV = [t.(9) t.(10)];
-                % % find exact uv values for locations
+                % or find exact uv values for locations
                 % obj.UV = obj.xyz_to_uv(obj.XYZ);
                 % obj.fitSensor();                
-                obj.showSensor();
+                % obj.showSensor();
+                
+                % find distances of rays from origin to core
+                obj.D = vecnorm(obj.XYZ, 2, 2);
+                obj.Sensor = true;
             end
         end       
    
@@ -118,6 +129,7 @@ classdef Ray < handle
         end
             
         function out = skinGrid(n, offset)
+            % TODO : Calc length of rays to core (D)
             persistent skin;
             if nargin               
                 r = Ray;

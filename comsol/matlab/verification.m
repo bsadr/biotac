@@ -2,6 +2,22 @@ MAX_Z = [10.55447]
 %% load comsol file
 import com.comsol.model.*
 import com.comsol.model.util.*
+
+%% read core stl file
+pd=mphreadstl('3dmodels/core-mesh.stl');
+%%
+pd{1,1}.title = 'filled skin';
+tmp = pd{1,1}.p(2,:);
+pd{1,1}.p(2,:)=pd{1,1}.p(3,:);
+pd{1,1}.p(3,:)=tmp;
+max_z = max(pd{1,1}.p(3,:))
+max_x = max(pd{1,1}.p(1,:));
+max_y = max(pd{1,1}.p(2,:));
+pd{1,1}.p(3,:) = pd{1,1}.p(3,:) - max_z;
+pd{1,1}.p(1,:) = pd{1,1}.p(1,:) - max_x/2;
+pd{1,1}.p(2,:) = pd{1,1}.p(2,:) - max_y/2;
+mphplot(pd)
+%%
 % biotac_model.mph has "finer" mesh preset
 % model =
 % mphopen('/home/bsadrfa/behzad/projects/shadowhand/comsol/biotac_model.mph');%
