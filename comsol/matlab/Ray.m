@@ -1,43 +1,14 @@
 classdef Ray < handle
     %Ray class for calcualting rays and coordinates
     %   Ray class for calcualting rays and coordinates (no properties)
-    
-    properties
-        % Sensor xyz and uv values (24 impedance sensors)
-        XYZ
-        UV
-        D
-    end
-    
-    properties (SetAccess = private)
-      Sensor = false
-    end    
-    
+      
     methods
-        function obj = Ray(~)
+        function obj = Ray()
             %Ray Construct an instance of this class
             %   Ray Construct an instance of this class, set the raddii
             obj.radii([12.42, 8.14, 8.057]);
             % skin radii: [14., 9.74, 9.74]
             % core radii: [12.42, 8.14, 8.057]
-            
-            if nargin == 1 % load rays from sensor location file
-                t = readtable('3dmodels/locations.csv');
-                % four locations on a flat surface (21...24)
-                % four excitation electrodes; (-4...-1)
-                obj.XYZ = [t.(2) t.(3) t.(4)];
-                
-                % either read uv from file
-                obj.UV = [t.(9) t.(10)];
-                % or find exact uv values for locations
-                % obj.UV = obj.xyz_to_uv(obj.XYZ);
-                % obj.fitSensor();                
-                % obj.showSensor();
-                
-                % find distances of rays from origin to core
-                obj.D = vecnorm(obj.XYZ, 2, 2);
-                obj.Sensor = true;
-            end
         end       
    
         function uv = xyz_to_uv(obj, xyz)
@@ -64,42 +35,10 @@ classdef Ray < handle
                    r(2)*sin(uv(:,1)).*sin(uv(:,2)), ...
                    r(3)*cos(uv(:,2))];
         end     
-        
-        function obj = fitSensor(obj)
-            % distance from a line
-            % https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-            f = @(uv, x2)norm(cross(obj.uv_to_xyz(uv), x2))/norm(x2);
-            
-            for i = 1:size(obj.XYZ, 1)
-                x2 = obj.XYZ(i, 1:3);
-                fun = @(uv)f(uv, x2);
-                uv0 = obj.UV(i, 1:2);
-                uv = fminsearch(fun, uv0);
-                obj.UV(i, 1:2) = uv;
-            end
-        end
-        
-        function showSensor(obj)
-            % Visualization function to inspect the sensor locations
-            xyz = obj.uv_to_xyz(obj.UV);
-            figure,
-            plot3(obj.XYZ(:,1), obj.XYZ(:,2), obj.XYZ(:,3), '.r' );
-            hold on;
-            plot3(xyz(:,1), xyz(:,2), xyz(:,3), '+b' );
-            for i = 1:size(obj.XYZ, 1)
-                text(obj.XYZ(i,1), obj.XYZ(i,2), obj.XYZ(i,3), sprintf("%d", i));
-                text(xyz(i,1), xyz(i,2), xyz(i,3), sprintf("%d", i));
-            end
-            axis equal
-            ylim([-10.6  10.6])
-            xlim([-14.9 14.9])
-            zlim([-14.2 0])
-            xlabel('x [mm]')
-            ylabel('y [mm]')
-            zlabel('z [mm]')
-            view( 0, 90 );      
-        end
-        
+                
+        % fitSensor and showSensor fulfilled their purpose 
+        % look previous commits for details
+
     end
     
     methods(Static)
@@ -115,8 +54,6 @@ classdef Ray < handle
             persistent uv;
             if nargin
                 eps =  1e-3;
-%                 u = linspace(pi, 2*pi-pi/n, n);
-%                 v = linspace(pi/2+offset, 3*pi/2-offset, 2*n);  
                 u = linspace(0, 2*pi*(1-1/n), n);
                 v = linspace(pi/2+offset, pi-eps, n*1/2);
                 [gu, gv] = meshgrid(u, v);
@@ -134,13 +71,42 @@ classdef Ray < handle
             if nargin               
                 r = Ray;
                 uv = r.uvGrid(n, offset);
-                skin = r.uv_to_xyz(uv);
+                XYZ = r.uv_to_xyz(uv);
+                D = vecnorm(XYZ, 2, 2);
+                skin = [XYZ D];                   
             elseif isempty(skin)
                 r = Ray;
                 uv = r.uvGrid();
-                skin = r.uv_to_xyz(uv);
+                XYZ = r.uv_to_xyz(uv);
+                D = vecnorm(XYZ, 2, 2);
+                skin = [XYZ D];                   
             end
             
+            out = skin;
+        end
+
+                
+        function out = uvSensor()
+            persistent uv;          
+            if isempty(uv)
+                t = readtable('3dmodels/locations.csv');
+                % four locations on a flat surface (21...24)
+                % four excitation electrodes; (-4...-1)
+                uv = [t.(9) t.(10)];
+                uv(25:end, :) = [];               
+            end
+            out = uv;
+        end
+            
+        function out = skinSensor()
+            persistent skin;
+            if isempty(skin) 
+                t = readtable('3dmodels/locations.csv');
+                XYZ = [t.(2) t.(3) t.(4)];                
+                XYZ(25:end, :) = [];
+                D = vecnorm(XYZ, 2, 2);
+                skin = [XYZ D];                   
+            end           
             out = skin;
         end
 
