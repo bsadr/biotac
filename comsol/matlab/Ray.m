@@ -8,7 +8,7 @@ classdef Ray < handle
             %   Ray Construct an instance of this class, set the raddii
             obj.radii([12.42, 8.14, 8.057]);
             % skin radii: [14., 9.74, 9.74]
-            % core radii: [12.42, 8.14, 8.057]
+            % core radii: [12.42, 8.14, 8.057]           
         end       
    
         function uv = xyz_to_uv(obj, xyz)
@@ -36,9 +36,6 @@ classdef Ray < handle
                    r(3)*cos(uv(:,2))];
         end     
                 
-        % fitSensor and showSensor fulfilled their purpose 
-        % look previous commits for details
-
     end
     
     methods(Static)
@@ -82,31 +79,6 @@ classdef Ray < handle
                 skin = [XYZ D];                   
             end
             
-            out = skin;
-        end
-
-                
-        function out = uvSensor()
-            persistent uv;          
-            if isempty(uv)
-                t = readtable('3dmodels/locations.csv');
-                % four locations on a flat surface (21...24)
-                % four excitation electrodes; (-4...-1)
-                uv = [t.(9) t.(10)];
-                uv(25:end, :) = [];               
-            end
-            out = uv;
-        end
-            
-        function out = skinSensor()
-            persistent skin;
-            if isempty(skin) 
-                t = readtable('3dmodels/locations.csv');
-                XYZ = [t.(2) t.(3) t.(4)];                
-                XYZ(25:end, :) = [];
-                D = vecnorm(XYZ, 2, 2);
-                skin = [XYZ D];                   
-            end           
             out = skin;
         end
 
