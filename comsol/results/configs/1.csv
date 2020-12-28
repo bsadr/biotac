@@ -2,7 +2,7 @@ Parameter,Value,Details,Expression
 isn,0.5,strain in normal direction,.5
 ix0,0,initial (x),0
 iy0,0,initial (y),0
-iz0,-10.56,initail (z),-10.56
+iz0,-10.35,initail (z),-10.35
 itheta,0,,0
 iphi,0,,0
 irot,0,rotation,0

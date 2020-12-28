@@ -5,7 +5,6 @@ classdef Biotac < handle
     properties
         Model
         SaveFolder
-        BaseSkin
         DeformedSkin
         
         Config
@@ -90,14 +89,13 @@ classdef Biotac < handle
         function obj = init(obj)
             obj.readCfg(obj.Config);
             obj.readCfg(0);
-            obj.setCfg;
-            obj.InContact = false;
+            % obj.setCfg;
+            % obj.InContact = false;
 
-            obj.makeContact;
-            obj.writeCfg;
-            obj.setCfg;
-            obj.NumWayPoints = 1 + mphglobal(obj.Model,'istop') ...
-                /mphglobal(obj.Model,'istep');                    
+            % obj.makeContact;
+            % obj.writeCfg;
+            % obj.setCfg;
+            obj.NumWayPoints = size(mphglobal(obj.Model,'istop'), 1);
             obj.WayPoints = zeros(obj.NumWayPoints, 3);
             obj.CurWayPoint = 1;
             obj.Skins = Skin.empty(obj.NumWayPoints, 0);
@@ -127,7 +125,16 @@ classdef Biotac < handle
                 status = false;
             end
         end
-
+        
+        function obj = setSkins(obj)
+            for i=1:obj.NumWayPoints
+                obj.Model.result('pg1').set('looplevel', i);
+                obj.Model.result('pg1').run
+                obj.Skins(i) = Skin(obj.Model, SensorRay);    
+%                 obj.Skins(i) = Skin(obj.Model, Ray);    
+                fprintf('loop level: %d\n', i)
+            end
+        end
         
 %         function obj = spinAll(obj)
 %             status = true;
@@ -191,7 +198,7 @@ classdef Biotac < handle
 %                 end
                 i = i+1;
             end
-            obj.BaseSkin = Skin(obj.Model);
+%             obj.BaseSkin = Skin(obj.Model);
             obj.readCfg(obj.Config);
             obj.Model.param.set('isc', mid); 
             obj.Model.component('comp1').physics('solid').feature('cnt1').feature('fric1').set('ContactPreviousStep', 'InContact');
@@ -232,7 +239,29 @@ classdef Biotac < handle
             saveas(fig, sprintf('%s/%s_%03d.png', obj.SaveFolder, title, i));
             close(fig)
         end
+        
+        function t = plotSensor(obj)
+            taxels = zeros(obj.NumWayPoints, 24);
+            for i=1:obj.NumWayPoints
+                taxels(i, :) = obj.Skins(i).Taxels(:, 4);
+            end
+            for i=1:24
+                plot(1:obj.NumWayPoints, taxels(:, i));
+                hold on 
+            end
+            t = taxels;
+        end
 
+    end
+    
+    methods(Static)
+        function skin = baseSkin(skin)
+            persistent Base;
+            if nargin
+                Base = skin;
+            end
+            skin = Base;
+        end
     end
     
 end

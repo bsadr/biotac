@@ -35,10 +35,10 @@
 % fprintf( 'Simulated average data deviation: %.5f\n', sqrt( sum( dx(:).^2 + dy(:).^2 + dz(:).^2 ) / size( x, 1 ) ) );
 
 % load data
-t = readtable('locations.csv');
-x = t.(2)(1:24);
-y = t.(3)(1:24);
-z = t.(4)(1:24);
+t = readtable('3dmodels/locations.csv');
+x = t.(2)(1:20);
+y = t.(3)(1:20);
+z = t.(4)(1:20);
 
 % do the fitting
 [ center, radii, evecs, v, chi2 ] = ellipsoid_fit( [ x y z ], '0' );
@@ -56,7 +56,7 @@ fprintf( '\n' );
 % center = [0 0 0];
 % radii= [.01242 .00814 .008057];
 figure,
-plot3( x, y, z, '.r' );
+plot3( x, y, z, 'or' );
 hold on;
 
 %draw fit

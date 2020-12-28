@@ -4,7 +4,6 @@ classdef SensorRay < Ray
       
     methods
         function obj = SensorRay()
-            % core radii: [12.42, 8.14, 8.057]           
         end       
     end
     

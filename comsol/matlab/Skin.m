@@ -6,7 +6,6 @@ classdef Skin < handle
     
     properties
         Model
-        Base
         Triangles
         Vertices
         RayIntersects % [x, y, z, d, tri_id, lambda1, lambda2]
@@ -17,42 +16,33 @@ classdef Skin < handle
         % lambda1, lambda2: Barycentric coordinate of the intersected ray
         % on the skin wrt the intersected triangle
         
-        Taxels % Taxel Coordinates [ellipsoid(3) cartesian(3)]
-        Deformeds % Deformed Coordinates [ellipsoid(3) cartesian(3)]
-        % plots
+        Taxels % Taxel Coordinates [ellipsoid(3) imp(1) cartesian(3)]
+        Deformeds % Deformed Coordinates [ellipsoid(3) imp(1) cartesian(3)]
+        
+        Ray %either Ray or SensorRay
     end
     
     methods
-        function obj = Skin(model, base, stl_flag)
+        function obj = Skin(model, ray)
             %Skin Construct an instance of this class
             %   Initialize the Triangles, Vertices, and RayIntersects
+            %   The base skin (filled skin with no contact) should be set
+            %   first
 
-            if nargin == 3 % model is a loaded stl file
-                surface = model{1,1};
-                fprintf('surface model')
-            else
-                % load comsol model           
-                pd=mphplot(model,'pg1', 'createplot', 'off');
-                surface = pd{2}{1};              
-                fprintf('comsol model')
-            end
-                % load trianlges and vertices from the surface
-                obj.Vertices = surface.p.';
-                obj.Triangles =  1+surface.t.';           
-            % set base skin
-            if nargin == 2
-                obj.Base = base;
-            else
-                %obj is the base
-                obj.Base = obj;
-            end
+            % load comsol model           
+            pd=mphplot(model,'pg1', 'createplot', 'off');
+            surface = pd{2}{1};              
             
-            if nargin < 3 || stl_flag
-                % calculate the intersections
-                rays = Ray;
-                obj.calcIntersects(rays);
-                obj.Model = model;
-            end
+            % load trianlges and vertices from the surface
+            obj.Vertices = surface.p.';
+            obj.Triangles =  1+surface.t.';           
+            
+            % set Ray
+            obj.Ray = ray;
+
+            % calculate the intersections
+            obj.calcIntersects(ray);
+            obj.Model = model;
         end
                 
         function vertice = V(obj, vert, coord, tri_ids)
@@ -80,7 +70,8 @@ classdef Skin < handle
             % intersect rays
             orig = [0 0 0];
             % intersection points
-            rays_xyz = rays.skinGrid;
+            grid = rays.skinGrid; % (x, y, z, length_from_org_to_core)
+            rays_xyz = grid(:, 1:3);
             points = zeros(size(rays_xyz, 1), 7);
 
             for i=1:size(rays_xyz)
@@ -112,11 +103,22 @@ classdef Skin < handle
         
         function obj = calcTaxels(obj)
             cartcoords = obj.RayIntersects(:, 1:3);
-            ellipcoords = obj.cart_to_ellip(cartcoords);
+            % set radii of base skin (fitt ellipsoid)
+            [base, is_init] = obj.baseSkin();
+            if ~ is_init 
+                [center, radii, ~, ~, ~] = ellipsoid_fit(cartcoords, '0' );
+                fprintf('base radii: %.5g %.5g %.5g\n', radii);
+                radii(3) = radii(3) - center(3);
+                obj.Ray.skinRadii(radii);
+                fprintf('base fitted center: %.5g %.5g %.5g\n', center);
+                fprintf('base radii: %.5g %.5g %.5g\n', radii);
+            end
+            
+            ellipcoords = obj.cart_to_ellip(cartcoords); % (uv, norm, imp)
             coords = [ellipcoords, cartcoords];
             % fix triangulation error
-            if obj.Base ~= obj
-                coords(:, 3) = coords(:, 3) ./ obj.Base.Taxels(:, 3);
+            if is_init
+                coords(:, 3) = coords(:, 3) ./ base.Taxels(:, 3);
             end
             obj.Taxels = coords;
         end
@@ -130,9 +132,14 @@ classdef Skin < handle
             %the barycentric coordinates of the base triangles and vertices
             %coordinates of the obj triangles; the order of points is from
             %the base
-            tris = obj.Base.RayIntersects(:, 5);
-            l2 = obj.Base.RayIntersects(:, 6);
-            l3 = obj.Base.RayIntersects(:, 7);
+            [base, is_init] = obj.baseSkin();
+            if ~ is_init 
+                obj.baseSkin(obj);
+                base = obj;
+            end           
+            tris = base.RayIntersects(:, 5);
+            l2 = base.RayIntersects(:, 6);
+            l3 = base.RayIntersects(:, 7);
             l1 = 1 - l3 - l2;
             cartcoords = [l1.*obj.V(1, 1, tris) + l2.*obj.V(2, 1, tris) ...
                 + l3.*obj.V(3, 1, tris), ...
@@ -142,21 +149,25 @@ classdef Skin < handle
                 + l3.*obj.V(3, 3, tris)];
             ellipcoords = obj.cart_to_ellip(cartcoords);
             % fix triangulation error
-            if obj.Base ~= obj
-                ellipcoords(:, 3) = ellipcoords(:, 3) ./ obj.Base.Taxels(:, 3);
+            if is_init
+                ellipcoords(:, 3) = ellipcoords(:, 3) ./ base.Taxels(:, 3);
             end
+            
             obj.Deformeds = [ellipcoords, cartcoords];            
         end
         
+               
         function ellip = cart_to_ellip(obj, obj_coords)
             %cart_to_ellip finds the ellipsoid (u,v) coordinates unit length
             %of deformed points represnted in 3d cartesian coordiantes
-            r = Ray;
-            uv = r.xyz_to_uv(obj_coords);
-            base_coords = r.uv_to_xyz(uv);
-            obj_norms = vecnorm(obj_coords, 2, 2);
-            base_norms = vecnorm(base_coords, 2, 2);
-            ellip = [uv, obj_norms./base_norms];
+            r = obj.Ray;
+            uv = r.xyz_to_uv(obj_coords);           % uv
+            base_coords = r.uv_to_xyzd(uv);         % base skin xyz
+            base_norms = base_coords(:, 4);         % base skin norm
+            obj_norms = vecnorm(obj_coords, 2, 2);  % obj skin  norm
+            core_norms = r.core_norms(uv);          % core norm
+            imp = obj_norms-core_norms;             % impedance
+            ellip = [uv, obj_norms./base_norms, imp];
         end
         
         % plot functions
@@ -179,8 +190,9 @@ classdef Skin < handle
             obj.drawEllip;
             hold on
             colormap(jet)
-            scatter3(obj.Taxels(:,4), obj.Taxels(:,5), obj.Taxels(:,6), ...
-                [], obj.Taxels(:,3), 'filled')
+            % color based on impedance (:,4) sensor
+            scatter3(obj.Taxels(:,5), obj.Taxels(:,6), obj.Taxels(:,7), ...
+                [], obj.Taxels(:,4), 'filled')
             axis equal
             colorbar('southoutside')
             caxis(ax1, limC)
@@ -192,13 +204,15 @@ classdef Skin < handle
             ylabel('y [mm]')
             zlabel('z [mm]')
             grid off
-            title("Taxel")
+            title("Taxel Impedance")
 
             ax2 = subplot(1, 2, 2);
             obj.drawEllip;
             hold on
             colormap(jet)
-            scatter3(obj.Deformeds(:,4), obj.Deformeds(:,5), obj.Deformeds(:,6), ...
+            % color based on norms (:,3); impedance is not accurate for
+            % deformed uv values since the ray has moved to new location
+            scatter3(obj.Deformeds(:,5), obj.Deformeds(:,6), obj.Deformeds(:,7), ...
                 [], obj.Deformeds(:,3), 'filled')
             axis equal
             colorbar('southoutside')
@@ -211,7 +225,7 @@ classdef Skin < handle
             ylabel('y [mm]')
             zlabel('z [mm]')
             grid off
-            title("Deformation")
+            title("Deformation Norms")
         end
         
         function plotCOM(obj, fig, view_vec)
@@ -261,21 +275,32 @@ classdef Skin < handle
         % test functions
         function out = test_convert_xyz(obj)
             coords2 = obj.RayIntersects(:,1:3);
-            r = Ray;
+            r = obj.Ray;
             uv = r.xyz_to_uv(coords2);
-            coords1 = r.uv_to_xyz(uv);
+            coords1 = r.uv_to_xyzd(uv);
+            coords1 = coords1(:,1:3);
             out = [coords2 - coords1 coords2  coords1];
         end
         
         function out = test_convert_uv(obj)
             coords2 = obj.RayIntersects(:,1:3);
-            r = Ray;
+            r = obj.Ray;
             uv = r.xyz_to_uv(coords2);
             out = [uv - r.uvGrid uv r.uvGrid];
         end
     end
     
     methods(Static)
+
+        function [skin, is_init] = baseSkin(skin)
+            persistent Base;
+            is_init =  ~isempty(Base);
+            if nargin
+                Base = skin;
+            end
+            skin = Base;
+        end
+        
         function pltg = plotGroup(i)
             plot_groups = ["pg3", "pg1"];
             pltg = plot_groups(i);
@@ -289,7 +314,7 @@ classdef Skin < handle
         function drawEllip(color)
             persistent x y z;
             if isempty(x)
-                r = Ray.radii;
+                r = Ray.skinRadii;
                 [x, y, z] = ellipsoid(0, 0, 0, r(1), r(2), r(3));
                 x = x(1:10,:); y = y(1:10,:); z = z(1:10,:);
             end

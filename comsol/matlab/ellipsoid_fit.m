@@ -104,9 +104,9 @@ elseif strcmp( equals, '0' )
           1 + 0 * x ];  % ndatapoints x 6 ellipsoid parameters
     % fit ellipsoid in the form Ax^2 + By^2 + Cz^2 = 1
 elseif strcmp( equals, '00' )
-    D = [ x .* x + y .* y - 2 * z .* z, ...
-          x .* x + z .* z - 2 * y .* y, ...
-          1 + 0 * x ];  % ndatapoints x 6 ellipsoid parameters
+    D = [ x .* x, ...
+          y .* y, ...
+          z .* z ];  % ndatapoints x 3 ellipsoid parameters
     % fit ellipsoid in the form Ax^2 + By^2 + Cz^2 + 2Gx + 2Hy + 2Iz = 1,
     % where A = B or B = C or A = C
 elseif strcmp( equals, '0xy' )
@@ -131,9 +131,15 @@ else
     error( [ 'Unknown parameter value ' equals '!' ] );
 end
 
+
 % solve the normal system of equations
-d2 = x .* x + y .* y + z .* z; % the RHS of the llsq problem (y's)
-u = ( D' * D ) \ ( D' * d2 );  % solution to the normal equations
+if strcmp( equals, '00' )
+    % http://www.juddzone.com/ALGORITHMS/least_squares_3D_ellipsoid.html
+    d2 = 1  + 0 * x;
+else
+    d2 = x .* x + y .* y + z .* z; % the RHS of the llsq problem (y's)
+end
+    u = ( D' * D ) \ ( D' * d2 )  % solution to the normal equations
 
 % find the residual sum of errors
 % chi2 = sum( ( 1 - ( D * u ) ./ d2 ).^2 ); % this chi2 is in the coordinate frame in which the ellipsoid is a unit sphere.
@@ -161,10 +167,7 @@ elseif strcmp( equals, '0' )
     v(3) = u(2) - 2 * u(1) - 1;
     v = [ v(1) v(2) v(3) 0 0 0 u( 3 : 6 )' ];
 elseif strcmp( equals, '00' )
-    v(1) = u(1) +     u(2) - 1;
-    v(2) = u(1) - 2 * u(2) - 1;
-    v(3) = u(2) - 2 * u(1) - 1;
-    v = [ v(1) v(2) v(3) 0 0 0 u( 3 : 6 )' ];
+    v = [ u(1) u(2) u(3) 0 0 0 0 0 0 0 ];
 elseif strcmp( equals, '0xy' )
     v(1) = u(1) - 1;
     v(2) = u(1) - 1;
