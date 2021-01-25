@@ -20,7 +20,8 @@ classdef Biotac < handle
         InContact
         
         % output
-        Skins
+        SensorSkins % Sensor
+        Skins     % High Def Skins
         FluidPressures
         ContactPressures
         SkinHeights
@@ -83,7 +84,7 @@ classdef Biotac < handle
             params=mphgetexpressions(obj.Model.param);
             ptab = cell2table([params(:,1) params(:,4) params(:,3) params(:,2)], ...
                 'VariableNames', {'Parameter', 'Value', 'Details', 'Expression'});
-             writetable(ptab, cfgpath)
+            writetable(ptab, cfgpath)
         end
        
         function obj = init(obj)
@@ -98,6 +99,7 @@ classdef Biotac < handle
             obj.NumWayPoints = size(mphglobal(obj.Model,'istop'), 1);
             obj.WayPoints = zeros(obj.NumWayPoints, 3);
             obj.CurWayPoint = 1;
+            obj.SensorSkins = Skin.empty(obj.NumWayPoints, 0);
             obj.Skins = Skin.empty(obj.NumWayPoints, 0);
             obj.FluidPressures = zeros(obj.NumWayPoints, 1);
             obj.ContactPressures = zeros(obj.NumWayPoints, 1);
@@ -112,8 +114,7 @@ classdef Biotac < handle
 %             obj.CurWayPoint = 2;
 %             
 %             obj.csvWrite;
-%             obj.savePlot;   
-            
+%             obj.savePlot;              
         end
         
         function [obj, status] = spin(obj)
@@ -130,7 +131,9 @@ classdef Biotac < handle
             for i=1:obj.NumWayPoints
                 obj.Model.result('pg1').set('looplevel', i);
                 obj.Model.result('pg1').run
-                obj.Skins(i) = Skin(obj.Model, SensorRay);    
+                obj.SensorSkins(i) = Skin(obj.Model, SensorRay);    
+                obj.Skins(i) = Skin(obj.Model, Ray);    
+
 %                 obj.Skins(i) = Skin(obj.Model, Ray);    
                 fprintf('loop level: %d\n', i)
             end
@@ -243,7 +246,7 @@ classdef Biotac < handle
         function t = plotSensor(obj)
             taxels = zeros(obj.NumWayPoints, 24);
             for i=1:obj.NumWayPoints
-                taxels(i, :) = obj.Skins(i).Taxels(:, 4);
+                taxels(i, :) = obj.SensorSkins(i).Taxels(:, 4);
             end
             for i=1:24
                 plot(1:obj.NumWayPoints, taxels(:, i));
@@ -251,11 +254,45 @@ classdef Biotac < handle
             end
             t = taxels;
         end
+        
+        function t = plotSkin(obj)
+            np = obj.Skins(1).Ray.numPoints;
+            taxels = zeros(obj.NumWayPoints, np);
+            for i=1:obj.NumWayPoints
+                taxels(i, :) = obj.Skins(i).Taxels(:, 4);
+            end
+            for i=1:np
+                plot(1:obj.NumWayPoints, taxels(:, i));
+                hold on 
+            end
+            t = taxels;
+        end
+        
 
+        function saveData(obj)
+            sensor_taxels = zeros(obj.NumWayPoints, 24);
+            np = obj.Skins(1).Ray.numPoints;
+            skin_taxels = zeros(obj.NumWayPoints, np);
+            for i=1:obj.NumWayPoints
+                sensor_taxels(i, :) = obj.SensorSkins(i).Taxels(:, 4);
+                skin_taxels(i, :) = obj.Skins(i).Taxels(:, 4);                
+            end
+            writematrix(sensor_taxels, sprintf('%s/sensor_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(skin_taxels, sprintf('%s/skin_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+        end
     end
     
     methods(Static)
-        function skin = baseSkin(skin)
+        function skin = baseSensorSkin(skin)
+            persistent Base;
+            if nargin
+                Base = skin;
+            end
+            skin = Base;
+        end
+        function skin = baseHDSkin(skin)
             persistent Base;
             if nargin
                 Base = skin;

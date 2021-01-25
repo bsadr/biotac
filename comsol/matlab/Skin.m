@@ -104,7 +104,11 @@ classdef Skin < handle
         function obj = calcTaxels(obj)
             cartcoords = obj.RayIntersects(:, 1:3);
             % set radii of base skin (fitt ellipsoid)
-            [base, is_init] = obj.baseSkin();
+            if isa(obj.Ray, 'SensorRay')
+                [base, is_init] = obj.baseSensorSkin();
+            else
+                [base, is_init] = obj.baseSkin();
+            end
             if ~ is_init 
                 [center, radii, ~, ~, ~] = ellipsoid_fit(cartcoords, '0' );
                 fprintf('base radii: %.5g %.5g %.5g\n', radii);
@@ -132,9 +136,18 @@ classdef Skin < handle
             %the barycentric coordinates of the base triangles and vertices
             %coordinates of the obj triangles; the order of points is from
             %the base
-            [base, is_init] = obj.baseSkin();
-            if ~ is_init 
-                obj.baseSkin(obj);
+            if isa(obj.Ray, 'SensorRay')
+                [base, is_init] = obj.baseSensorSkin();
+            else
+                [base, is_init] = obj.baseSkin();
+            end
+            
+            if ~ is_init
+                if isa(obj.Ray, 'SensorRay')
+                    obj.baseSensorSkin(obj);
+                else
+                    obj.baseSkin(obj);
+                end
                 base = obj;
             end           
             tris = base.RayIntersects(:, 5);
@@ -292,11 +305,22 @@ classdef Skin < handle
     
     methods(Static)
 
+        function [skin, is_init] = baseSensorSkin(skin)
+            persistent Base;
+            is_init =  ~isempty(Base);
+            if nargin
+                Base = skin;
+                fprintf("Sensor\n");
+            end
+            skin = Base;
+        end
+        
         function [skin, is_init] = baseSkin(skin)
             persistent Base;
             is_init =  ~isempty(Base);
             if nargin
                 Base = skin;
+                fprintf("Skin\n");
             end
             skin = Base;
         end

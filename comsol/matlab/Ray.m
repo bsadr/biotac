@@ -1,7 +1,7 @@
 classdef Ray < handle
     %Ray class for calcualting rays and coordinates
     %   Ray class for calcualting rays and coordinates (no properties)
-      
+    
     methods
         function obj = Ray()
             %Ray Construct an instance of this class
@@ -9,7 +9,6 @@ classdef Ray < handle
             obj.coreRadii([12.42, 8.14, 8.057]);
             % obj.skinRadii([14., 9.74, 9.74]);%should update via base skin
         end       
-   
         function uv = xyz_to_uv(obj, xyz) % for skin
             %converts xyz to uv (on the skin)
             %   converts xyz (N x 3) to uv (N x 2)
@@ -74,6 +73,10 @@ classdef Ray < handle
                    r(2)*sin(uv(:,1)).*sin(uv(:,2)), ...
                    r(3)*cos(uv(:,2))];
         end     
+
+        function out = numPoints(obj)
+            out = size(obj.uvGrid(), 1);            
+        end
         
     end
     
@@ -124,7 +127,7 @@ classdef Ray < handle
             
             out = skin;
         end
-
+        
     end
     
 end
