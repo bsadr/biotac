@@ -1,0 +1,23 @@
+Parameter,Value,Details,Expression
+isn,0.5,strain in normal direction,.5
+ix0,0,initial (x),0
+iy0,0,initial (y),0
+iz0,-10.35,initail (z),-10.35
+itheta,0,,0
+iphi,0,,0
+irot,0,rotation,0
+iw,20,width,20
+il,20,lenght,20
+inx,0,normal direction (x),0
+iny,0,normal direction (y),0
+inz,1,normal direction (z),1
+istep,0.1,step in tangent direction,0.1
+itx,0,tangent direction (x),0
+ity,1,tangent direction (y),1
+itz,0,tangent direction (z),0
+isc,0,strain in normal direction for initial contact,0
+istop,.5,stop in tangent direction,.5
+split_a,0,a in ax+by+cz=d,0
+split_b,0,b (note a^2+b^2+c^2==1),0
+split_c,-1,c,-1
+split_d,7.5,d,7.5

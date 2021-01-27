@@ -1,0 +1,4 @@
+
+base radii: 13.848 10.1 9.74
+base fitted center: 0.00016221 -2.6325e-05 -0.24677
+base radii: 13.848 10.1 9.9868
