@@ -5,7 +5,7 @@ savefolder = "/home/bsadrfa/behzad/projects/biotac/comsol/results/";
 import com.comsol.model.*
 import com.comsol.model.util.*
 % model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/biotac.mph');
-model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/data/biotac_theta_20.mph');
+model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/data/biotac_theta_10.mph');
 ModelUtil.showProgress(true);
 
 % meshgrid of rays in u,v coordinates
@@ -16,7 +16,7 @@ rays_xyz = Ray.skinGrid(n, offset);
 
 
 % Create a Biotac instance
-biotac = Biotac(model, 3, savefolder);
+biotac = Biotac(model, 2, savefolder);
 biotac.setSkins;
 
 % biotac.spin
