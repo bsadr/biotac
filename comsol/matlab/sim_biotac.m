@@ -12,7 +12,7 @@ ModelUtil.showProgress(true);
 n = 50;
 offset = 0.05*pi;
 rays_uv = Ray.uvGrid(n, offset);
-rays_xyz = Ray.skinGrid(n, offset);model = mphopen('/home/bsadrfa/behzad/projects/biotac/comsol/model/biotac.mph');
+rays_xyz = Ray.skinGrid(n, offset);
 
 
 % Create a Biotac instance
