@@ -98,13 +98,37 @@ classdef Ray < handle
         end
                 
         function out = uvGrid(n, offset)
+            
+            function nd = addData(d, n)
+                d = uniquetol(sort(d), 1e-3);               
+                if n==0
+                    nd=d;
+                    return
+                end
+                l = size(d);
+                nd = zeros(l+(l-1)*n);
+                for i=1:l-1
+                    nd((i-1)*(n+1)+1:i*(n+1)+1) = linspace(d(i), d(i+1), n+2);
+                end
+                return                                   
+            end
+            
             persistent uv;
             if nargin
                 eps =  1e-3;
-                u = linspace(0, 2*pi*(1-1/n), n);
-                v = linspace(pi/2+offset, pi-eps, n*1/2);
+                sensor_uv = Ray.sensor_uvGrid();
+%                 u = sensor_uv(:, 1);
+%                 v = sensor_uv(:, 2);
+%                 u = uniquetol(addData(u, n), 1e-3);               
+%                 v = uniquetol(addData(v, n), 1e-3);
+                ug = linspace(0, 2*pi*(1-.1/n), n);
+                vg = linspace(pi/2+offset, pi-eps, n*1/2);
+                u = uniquetol(sort([addData(sensor_uv(:, 1), 0); ug']), 1e-3);
+                v = uniquetol(sort([addData(sensor_uv(:, 2), 0); vg']), 1e-3);
+
                 [gu, gv] = meshgrid(u, v);
                 uv = [reshape(gu, [],1) reshape(gv,[],1)];
+%                 uv = [[0 pi/2]; uv];
             end
             if isempty(uv)
                 error('Error, first use\n uvGrid(n, offset)')
@@ -127,6 +151,19 @@ classdef Ray < handle
             
             out = skin;
         end
+
+        function out = sensor_uvGrid()
+            persistent uv;          
+            if isempty(uv)
+                t = readtable('3dmodels/locations.csv');
+                % four locations on a flat surface (21...24)
+                % four excitation electrodes; (-4...-1)
+                uv = [t.(9) t.(10)];
+                uv(25:end, :) = [];               
+            end
+            out = uv;
+        end        
+
         
     end
     

@@ -128,7 +128,8 @@ classdef Biotac < handle
         end
         
         function obj = setSkins(obj)
-            for i=1:obj.NumWayPoints
+           for i=1:obj.NumWayPoints
+%             for i=1:1
                 obj.Model.result('pg1').set('looplevel', i);
                 obj.Model.result('pg1').run
                 obj.SensorSkins(i) = Skin(obj.Model, SensorRay);    
@@ -271,15 +272,40 @@ classdef Biotac < handle
 
         function saveData(obj)
             sensor_taxels = zeros(obj.NumWayPoints, 24);
+            sensor_x = zeros(obj.NumWayPoints, 24);
+            sensor_y = zeros(obj.NumWayPoints, 24);
+            sensor_z = zeros(obj.NumWayPoints, 24);
+
             np = obj.Skins(1).Ray.numPoints;
             skin_taxels = zeros(obj.NumWayPoints, np);
+            skin_x = zeros(obj.NumWayPoints, np);
+            skin_y = zeros(obj.NumWayPoints, np);
+            skin_z = zeros(obj.NumWayPoints, np);
             for i=1:obj.NumWayPoints
                 sensor_taxels(i, :) = obj.SensorSkins(i).Taxels(:, 4);
-                skin_taxels(i, :) = obj.Skins(i).Taxels(:, 4);                
+                sensor_x(i, :) = obj.SensorSkins(i).Taxels(:, 5);
+                sensor_y(i, :) = obj.SensorSkins(i).Taxels(:, 6);
+                sensor_z(i, :) = obj.SensorSkins(i).Taxels(:, 7);
+                skin_taxels(i, :) = obj.Skins(i).Taxels(:, 4);
+                skin_x(i, :) = obj.Skins(i).Taxels(:, 5);
+                skin_y(i, :) = obj.Skins(i).Taxels(:, 6);
+                skin_z(i, :) = obj.Skins(i).Taxels(:, 7);
             end
             writematrix(sensor_taxels, sprintf('%s/sensor_%03d.csv', ...
                 obj.SaveFolder, obj.Config))
+            writematrix(sensor_x, sprintf('%s/sensor_x_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(sensor_y, sprintf('%s/sensor_y_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(sensor_z, sprintf('%s/sensor_z_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
             writematrix(skin_taxels, sprintf('%s/skin_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(skin_x, sprintf('%s/skin_x_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(skin_y, sprintf('%s/skin_y_%03d.csv', ...
+                obj.SaveFolder, obj.Config))
+            writematrix(skin_z, sprintf('%s/skin_z_%03d.csv', ...
                 obj.SaveFolder, obj.Config))
         end
     end

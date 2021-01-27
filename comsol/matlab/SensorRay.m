@@ -9,15 +9,16 @@ classdef SensorRay < Ray
     
     methods(Static)                             
         function out = uvGrid()
-            persistent uv;          
-            if isempty(uv)
-                t = readtable('3dmodels/locations.csv');
-                % four locations on a flat surface (21...24)
-                % four excitation electrodes; (-4...-1)
-                uv = [t.(9) t.(10)];
-                uv(25:end, :) = [];               
-            end
-            out = uv;
+%             persistent uv;          
+%             if isempty(uv)
+%                 t = readtable('3dmodels/locations.csv');
+%                 % four locations on a flat surface (21...24)
+%                 % four excitation electrodes; (-4...-1)
+%                 uv = [t.(9) t.(10)];
+%                 uv(25:end, :) = [];               
+%             end
+%             out = uv;
+            out = Ray.sensor_uvGrid();
         end        
         function out = skinGrid()
             persistent skin;
