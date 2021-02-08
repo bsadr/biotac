@@ -1,0 +1,40 @@
+Parameter,Value,Details,Expression
+isn,0,"strain in normal direction",0
+ix0,10.5,"initial (x)",10.5
+iy0,0,"initial (y)",0
+iz0,-6.8,"initail (z) -10.35",-6.8
+itheta,-40,"",-40
+iphi,0,"",0
+irot,0,"rotation",0
+iw,1,"width",1
+il,1,"lenght",1
+vol_0,3.0524e-06,"inner half-ellipsoid volume",3.0524E-6
+inx,0,"normal direction (x)",0
+iny,0,"normal direction (y)",0
+inz,1,"normal direction (z)",1
+istep,0.1,"step in tangent direction",0.1
+itx,0,"tangent direction (x)",0
+ity,0,"tangent direction (y)",0
+itz,1,"tangent direction (z)",1
+mu,2,"friction coefficient",2
+para,0,"computation parameter",0
+isc,0,"strain in normal direction for initial contact",0
+idx,0,"displacement wrt to initial contact (x)",isn*inx+itx*para
+idy,0,"displacement wrt to initial contact (y)",isn*iny+ity*para
+idz,0,"displacement wrt to initial contact (y)",isn*inz+itz*para
+icx,10.5,"inital contact (x)",ix0+isc*inx
+icy,0,"inital contact (y)",iy0+isc*iny
+icz,-6.8,"inital contact (z)",iz0+isc*inz
+ix,10.5,"",icx+idx
+iy,0,"",icy+idy
+iz,-6.8,"",icz+idz
+istop,0,"stop in tangent direction",0
+split_a,-0.83909963117728,"a in ax+by+cz=d",tan(itheta*pi/180)
+split_b,0,"b (note a^2+b^2+c^2==1)",0
+split_c,1,"c",1
+split_d,-12.6,"d",-12.6
+c01,0.0304571428571429,"",0.0304571428571429
+c10,0.120342857142857,"shore a 35",0.120342857142857
+d1,0,"",0
+G,0.3016,"With regard to Neo-Hookean, Mooney-Rivlin, and Signorini models, for consistency with linear elasticity, the material parameters need to satisfy the following conditions: G = 2 (C10 + C01), where G is the shear modulus",2*(c01+c10)
+p_0,1750,"",1750

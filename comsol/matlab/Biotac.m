@@ -88,8 +88,8 @@ classdef Biotac < handle
         end
        
         function obj = init(obj)
-            obj.readCfg(obj.Config);
             obj.readCfg(0);
+            obj.writeCfg;
             % obj.setCfg;
             % obj.InContact = false;
 
