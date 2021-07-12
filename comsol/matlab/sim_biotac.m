@@ -30,7 +30,7 @@ for i=1:size(model_paths, 1)
 
     % Create a Biotac instance
     biotac = Biotac(model, i, savefolder);
-    biotac.setSkins;
+%     biotac.setSkins;
 
     % biotac.spin
     biotac.saveData;

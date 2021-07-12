@@ -25,6 +25,10 @@ classdef Biotac < handle
         FluidPressures
         ContactPressures
         SkinHeights
+        % output aggregated normal force
+        NormalForcePoints
+        NormalForceMags
+        NormalForces
     end
        
     methods
@@ -104,6 +108,9 @@ classdef Biotac < handle
             obj.FluidPressures = zeros(obj.NumWayPoints, 1);
             obj.ContactPressures = zeros(obj.NumWayPoints, 1);
             obj.SkinHeights = zeros(obj.NumWayPoints, 1);
+            obj.NormalForcePoints = zeros(obj.NumWayPoints, 3);
+            obj.NormalForceMags = zeros(obj.NumWayPoints, 3);
+            obj.NormalForces = zeros(obj.NumWayPoints, 1);
             
 %             obj.DeformedSkin = Skin(obj.Model, obj.BaseSkin);
 %             obj.Skins(1) = obj.DeformedSkin;
@@ -134,7 +141,7 @@ classdef Biotac < handle
                 obj.Model.result('pg1').run
                 obj.SensorSkins(i) = Skin(obj.Model, SensorRay);    
                 obj.Skins(i) = Skin(obj.Model, Ray);    
-
+                
 %                 obj.Skins(i) = Skin(obj.Model, Ray);    
                 fprintf('loop level: %d\n', i)
             end
@@ -271,41 +278,53 @@ classdef Biotac < handle
         
 
         function saveData(obj)
-            sensor_taxels = zeros(obj.NumWayPoints, 24);
-            sensor_x = zeros(obj.NumWayPoints, 24);
-            sensor_y = zeros(obj.NumWayPoints, 24);
-            sensor_z = zeros(obj.NumWayPoints, 24);
+%             sensor_taxels = zeros(obj.NumWayPoints, 24);
+%             sensor_x = zeros(obj.NumWayPoints, 24);
+%             sensor_y = zeros(obj.NumWayPoints, 24);
+%             sensor_z = zeros(obj.NumWayPoints, 24);
+% 
+%             np = obj.Skins(1).Ray.numPoints;
+%             skin_taxels = zeros(obj.NumWayPoints, np);
+%             skin_x = zeros(obj.NumWayPoints, np);
+%             skin_y = zeros(obj.NumWayPoints, np);
+%             skin_z = zeros(obj.NumWayPoints, np);
+%             for i=1:obj.NumWayPoints
+%                 sensor_taxels(i, :) = obj.SensorSkins(i).Taxels(:, 4);
+%                 sensor_x(i, :) = obj.SensorSkins(i).Taxels(:, 5);
+%                 sensor_y(i, :) = obj.SensorSkins(i).Taxels(:, 6);
+%                 sensor_z(i, :) = obj.SensorSkins(i).Taxels(:, 7);
+%                 skin_taxels(i, :) = obj.Skins(i).Taxels(:, 4);
+%                 skin_x(i, :) = obj.Skins(i).Taxels(:, 5);
+%                 skin_y(i, :) = obj.Skins(i).Taxels(:, 6);
+%                 skin_z(i, :) = obj.Skins(i).Taxels(:, 7);
+%             end
+%             writematrix(sensor_taxels, sprintf('%s/sensor_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(sensor_x, sprintf('%s/sensor_x_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(sensor_y, sprintf('%s/sensor_y_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(sensor_z, sprintf('%s/sensor_z_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(skin_taxels, sprintf('%s/skin_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(skin_x, sprintf('%s/skin_x_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(skin_y, sprintf('%s/skin_y_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+%             writematrix(skin_z, sprintf('%s/skin_z_%03d.csv', ...
+%                 obj.SaveFolder, obj.Config))
+          
+            obj.NormalForcePoints = [mphglobal(obj.Model, 'nx0') ...
+                mphglobal(obj.Model, 'ny0') mphglobal(obj.Model, 'nz0')];
+            obj.NormalForceMags = [mphglobal(obj.Model, 'nx') ...
+                mphglobal(obj.Model, 'ny') mphglobal(obj.Model, 'nz')];
+            obj.ContactPressures = mphglobal(obj.Model, 'pc');
+            obj.NormalForces = mphglobal(obj.Model, 'fn');             
 
-            np = obj.Skins(1).Ray.numPoints;
-            skin_taxels = zeros(obj.NumWayPoints, np);
-            skin_x = zeros(obj.NumWayPoints, np);
-            skin_y = zeros(obj.NumWayPoints, np);
-            skin_z = zeros(obj.NumWayPoints, np);
-            for i=1:obj.NumWayPoints
-                sensor_taxels(i, :) = obj.SensorSkins(i).Taxels(:, 4);
-                sensor_x(i, :) = obj.SensorSkins(i).Taxels(:, 5);
-                sensor_y(i, :) = obj.SensorSkins(i).Taxels(:, 6);
-                sensor_z(i, :) = obj.SensorSkins(i).Taxels(:, 7);
-                skin_taxels(i, :) = obj.Skins(i).Taxels(:, 4);
-                skin_x(i, :) = obj.Skins(i).Taxels(:, 5);
-                skin_y(i, :) = obj.Skins(i).Taxels(:, 6);
-                skin_z(i, :) = obj.Skins(i).Taxels(:, 7);
-            end
-            writematrix(sensor_taxels, sprintf('%s/sensor_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(sensor_x, sprintf('%s/sensor_x_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(sensor_y, sprintf('%s/sensor_y_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(sensor_z, sprintf('%s/sensor_z_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(skin_taxels, sprintf('%s/skin_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(skin_x, sprintf('%s/skin_x_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(skin_y, sprintf('%s/skin_y_%03d.csv', ...
-                obj.SaveFolder, obj.Config))
-            writematrix(skin_z, sprintf('%s/skin_z_%03d.csv', ...
+            forces = [obj.NormalForcePoints, obj.NormalForceMags, ...
+                obj.ContactPressures, obj.NormalForces];
+            writematrix(forces, sprintf('%s/forces_%03d.csv', ...
                 obj.SaveFolder, obj.Config))
         end
     end
